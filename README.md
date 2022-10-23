@@ -3,6 +3,8 @@
 Sapphire Pro with ,diamond head, 3d touch, e3d v6 and sherpa mini.
 Octopus pro with TMC2209 UART, EBB36 CAN v1.2 and U2C v2.1 running klipper
 
+![Sapphire pro](https://twotrees3d.com/wp-content/uploads/2022/01/SP-3-Linear-Rail-3D-Printer-Corexy-3D-Printing-Machine-600x600.jpg)
+
 links to original sites:
 
 [Bigtreetech EBB](https://github.com/bigtreetech/EBB)
