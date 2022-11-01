@@ -1,3 +1,4 @@
+theme:Modernist
 # Sapphire pro with Octopus pro running klipper
 
 ## **Stil a work in progress not finshed yet !**
