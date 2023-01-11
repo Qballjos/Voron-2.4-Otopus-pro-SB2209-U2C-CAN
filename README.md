@@ -9,6 +9,8 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 
 ![U2C-Octopus-SB2209](https://user-images.githubusercontent.com/1911646/211887538-b0239d62-0468-4e26-8723-45eb765b60e9.jpg)
 
+[Firmware EBB SB2209](https://github.com/Qballjos/Voron-2.4-Otopus-pro-EBB36-U2C-CAN/wiki/Firmware-SB2209-SB2240)
+[Klipper Configuration U2C](https://github.com/Qballjos/Voron-2.4-Otopus-pro-EBB36-U2C-CAN/wiki/Klipper-Configuration-U2C)
 
 links to original sites:
 
