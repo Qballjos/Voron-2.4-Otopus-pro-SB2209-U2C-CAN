@@ -1,6 +1,6 @@
 # Voron 2.4 R2 with Octopus pro running klipper
 
-## **:warning: Stil a work in progress not finshed yet !**
+## **:warning: Stil a work in progress not finshed yet ! :warning:**
 
 Voron 2.4 R2 with ,Stealthburner, Voron Tap, E3D v6.
 Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
