@@ -22,3 +22,9 @@ links to original sites:
 [Grabcat](https://grabcad.com/library)
 
 [Voron](https://docs.vorondesign.com)
+
+[Maz0r](https://github.com/maz0r)
+
+[Lab4450](https://lab4450.com)
+
+And the ones I forgot to mention here :smile:
