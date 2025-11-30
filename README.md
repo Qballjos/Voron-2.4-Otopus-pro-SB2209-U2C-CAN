@@ -27,12 +27,42 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 ### Complete Installation Guide
 
 #### Step 1: U2C Configuration
+
+**⚠️ Important for U2C v2.1**: Remove the 120R termination resistor jumper before connecting to the CAN bus network.
+
 1. **Remove the 120R termination resistor jumper** on the U2C board
-   - This is required for proper CAN bus termination
+   - This is required for proper CAN bus termination with Octopus Pro + EBB SB2209 setup
    - The jumper is typically located near the CAN bus connector
-2. Flash U2C firmware if needed:
-   - Use `U2C_V2_STM32G0B1.bin` from the `u2c/` folder
-   - Follow U2C manual for flashing instructions
+   - **For U2C v2.1**: The jumper should be REMOVED (not installed)
+
+2. **Flash U2C firmware** (recommended, especially for boards purchased before 2023):
+   
+   **Method A: Using firmware from this repository**
+   - The firmware file `U2C_V2_STM32G0B1.bin` is available in the `u2c/` folder
+   - Copy it to your Raspberry Pi or download from the repository
+   
+   **Method B: Download from external source**
+   ```bash
+   cd ~
+   wget https://github.com/Esoterical/voron_canbus/raw/main/can_adapter/BigTreeTech%20U2C%20v2.1/G0B1_U2C_V2.bin
+   ```
+
+3. **Flash the firmware**:
+   - Press and hold the **Boot button** on the U2C
+   - While holding Boot, connect the U2C to your Raspberry Pi via USB-C cable
+   - Release the Boot button (U2C should now be in DFU mode)
+   - Verify DFU mode: `sudo dfu-util -l` (should show STM32 device)
+   - Flash the firmware:
+     ```bash
+     sudo dfu-util -D ~/U2C_V2_STM32G0B1.bin -a 0 -s 0x08000000:leave
+     ```
+     (Or use the downloaded filename if using Method B: `~/G0B1_U2C_V2.bin`)
+   - You may see an "error during download get-status" message - this can be ignored if the flash was successful
+   - Unplug and reconnect the U2C
+
+4. **Verify the U2C is working**:
+   - After setting up CAN network (see Step 4), run `ifconfig` to check for `can0` interface
+   - The U2C should appear as a USB device when connected
 
 #### Step 2: Octopus Pro Firmware Setup
 
