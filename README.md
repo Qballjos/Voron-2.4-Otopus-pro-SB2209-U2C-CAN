@@ -41,7 +41,7 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
    - The jumper is typically located near the CAN bus connector
    - **For U2C v2.1**: The jumper should be REMOVED (not installed)
 
-2. **Flash U2C firmware** (recommended, especially for boards purchased before 2023):
+2. **Flash U2C firmware** (recommended):
    
    **Method A: Using firmware from this repository**
    - The firmware file `U2C_V2_STM32G0B1.bin` is available in the `u2c/` folder
