@@ -9,14 +9,17 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 
 ## ⚠️ Important Installation Notes
 
-### CAN Bus Setup - Critical Steps
+### Setup Overview
 
-**After flashing the Octopus Pro in DFU mode, you MUST connect it via CAN bus. This is the only way the CAN network will work properly.**
+**This configuration uses a Hybrid approach:**
+- **Octopus Pro**: Connected via USB serial (mainboard communication)
+- **SB2209 Toolhead**: Connected via CAN bus (toolhead communication)
+- **U2C**: USB-to-CAN bridge for the toolhead
 
 #### Setup Requirements:
-- **Octopus Pro v1.1** (or compatible version)
-- **U2C v2.1** (or compatible version)  
-- **EBB SB2209 v1.0** (or EBB36)
+- **Octopus Pro v1.1** (or compatible version) - Connected via USB
+- **U2C v2.1** (or compatible version) - USB-to-CAN bridge
+- **EBB SB2209 v1.0** - Connected via CAN bus
 - **U2C Configuration**: Remove the 120R jumper on the U2C board
 
 ---
@@ -36,15 +39,15 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
    - Micro-controller: `STM32F446`
    - Bootloader offset: `32KiB bootloader`
    - Clock Reference: `12 MHz crystal` (enable "extra low-level configuration options")
-   - Communication interface: Configure for CAN bus operation
+   - Communication interface: `USB (on PA11/PA12)` - This setup uses USB serial for the mainboard
 2. **Flash the Octopus Pro** in DFU mode:
    - Put the board in DFU mode (usually BOOT0 button + reset)
    - Flash using `make flash FLASH_DEVICE=0483:df11` or use STM32CubeProgrammer
    - Or copy `firmware.bin` to SD card and restart
-3. **⚠️ CRITICAL**: After flashing in DFU mode, **connect via CAN bus (not USB)**
-   - Do NOT connect via USB after flashing
-   - The CAN network will ONLY work when connected via CAN bus
-   - This is the most common mistake - USB connection will prevent CAN bus from working
+3. **Connection**: After flashing, connect the Octopus Pro via **USB** to your Raspberry Pi
+   - This setup uses a hybrid approach: USB for mainboard, CAN bus for toolhead
+   - The Octopus Pro will communicate via USB serial
+   - The SB2209 toolhead will communicate via CAN bus
 
 #### Step 3: EBB SB2209 Firmware Setup
 1. **Compile Klipper firmware** for EBB SB2209:
@@ -61,12 +64,13 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 #### Step 4: CAN Bus Connection Setup
 1. **Physical connections**:
    - Connect U2C to Raspberry Pi via USB
-   - Connect Octopus Pro to U2C via CAN bus (CANH/CANL)
-   - Connect EBB SB2209 to CAN bus network (daisy chain or via U2C)
+   - Connect Octopus Pro to Raspberry Pi via USB (for mainboard communication)
+   - Connect EBB SB2209 to CAN bus network via U2C (CANH/CANL wires)
    - Ensure proper CAN bus termination (120R at each end of the bus)
+   - **Note**: This setup uses USB for the mainboard and CAN bus only for the toolhead
 2. **Power up sequence**:
    - Power on U2C first
-   - Power on Octopus Pro (via CAN bus, not USB)
+   - Power on Octopus Pro (via USB connection)
    - Power on EBB SB2209
 3. **Verify CAN bus connection**:
    ```bash
@@ -77,40 +81,41 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 
 #### Step 5: Klipper Configuration
 
-**Choose your connection method:**
+**This setup uses a Hybrid approach:**
+- **Octopus Pro**: Connected via USB serial (mainboard)
+- **SB2209**: Connected via CAN bus (toolhead)
 
-**Option A: Full CAN Bus Setup (Recommended)**
-- Octopus Pro configured as USB-CAN-Bridge (on CAN bus)
-- SB2209 on CAN bus
-- Both use `canbus_uuid` in config
-- Update `printer.cfg` main `[mcu]` section to use `canbus_uuid: YOUR_OCTOPUS_UUID` (no `serial:` or `restart_method:`)
-- Update `canbus_uuid` in `SB2209.cfg` with your EBB's UUID
+1. **Update `printer.cfg` main `[mcu]` section**:
+   - Find your Octopus Pro serial path: `ls -l /dev/serial/by-id/`
+   - Update the `serial:` line with your device path
+   - Example: `serial: /dev/serial/by-id/usb-Klipper_stm32f446xx_XXXXXXXX-if00`
+   - Keep `restart_method: command`
 
-**Option B: Hybrid Setup (Current config)**
-- Octopus Pro on USB serial connection
-- SB2209 on CAN bus
-- Update `printer.cfg` main `[mcu]` section with correct serial path (check with `ls -l /dev/serial/by-id/`)
-- Update `canbus_uuid` in `SB2209.cfg` with your EBB's UUID
+2. **Update `SB2209.cfg`**:
+   - Find your SB2209 UUID using: `~/klippy-env/bin/python ~/klipper/scripts/canbus_query.py can0`
+   - Update `canbus_uuid` in `SB2209.cfg` with your EBB's UUID
+   - Example: `canbus_uuid: a863bc1811c2`
 
-**Note**: The current `backup/printer.cfg` uses Option B (hybrid). If you want Option A (full CAN), you'll need to:
-1. Find the Octopus Pro UUID using `canbus_query.py can0`
-2. Change the `[mcu]` section from `serial:` to `canbus_uuid:`
-2. **Restart Klipper** and verify all MCUs connect:
+3. **Verify all include paths are correct** in `printer.cfg`
+
+4. **Restart Klipper** and verify all MCUs connect:
    ```bash
    sudo systemctl restart klipper
    ```
-3. **Check Klipper logs** for any connection errors:
+
+5. **Check Klipper logs** for any connection errors:
    ```bash
    tail -f ~/printer_data/logs/klippy.log
    ```
 
 #### Troubleshooting
-- **CAN bus not working**: Ensure Octopus Pro is connected via CAN bus (not USB) after flashing
-- **EBB not detected**: Verify CAN UUID is correct in `SB2209.cfg`
-- **U2C issues**: Check that 120R jumper is removed
+- **Octopus Pro not detected**: Verify USB connection and check serial path with `ls -l /dev/serial/by-id/`
+- **EBB not detected**: Verify CAN UUID is correct in `SB2209.cfg` and check with `canbus_query.py can0`
+- **U2C issues**: Check that 120R jumper is removed on U2C
 - **Connection errors**: Verify CAN bus wiring (CANH/CANL) and termination resistors
+- **CAN bus not working**: Ensure SB2209 is properly connected to CAN bus network via U2C
 
-> **Note**: Many installation points are not obvious. The critical step is connecting Octopus Pro via CAN bus (not USB) after initial firmware flash. This is the only way the CAN network will work properly.
+> **Note**: This setup uses USB for the mainboard (Octopus Pro) and CAN bus only for the toolhead (SB2209). This hybrid approach is simpler and works well for most setups.
 
 ![voron 2 4 R2](https://user-images.githubusercontent.com/1911646/210006979-284c8834-5c52-45b6-8e7a-231ccd9c2b9e.jpeg)
 
