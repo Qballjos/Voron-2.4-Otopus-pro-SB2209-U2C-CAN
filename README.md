@@ -1,11 +1,11 @@
 # Voron 2.4 R2 with Octopus pro running klipper
 
-## **:warning: Stil a work in progress not finshed yet ! :warning:**
+## **:warning: Still a work in progress not finished yet ! :warning:**
 
-Voron 2.4 R2 with ,Stealthburner, Voron Tap, E3D v6.
+Voron 2.4 R2 with Stealthburner, Voron Tap, Bambu hotend.
 Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 
-> ## For installation steps check the [Wikipage](https://github.com/Qballjos/Voron-2.4-Otopus-pro-EBB36-U2C-CAN/wiki)
+> ## For installation steps check the [Wikipage](https://github.com/Qballjos/Voron-2.4-Otopus-pro-SB2209-U2C-CAN/wiki)
 
 ![voron 2 4 R2](https://user-images.githubusercontent.com/1911646/210006979-284c8834-5c52-45b6-8e7a-231ccd9c2b9e.jpeg)
 
