@@ -35,31 +35,60 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
    - Follow U2C manual for flashing instructions
 
 #### Step 2: Octopus Pro Firmware Setup
+
+**Note**: For USB serial setup, Katapult is **NOT required**. You can flash directly via DFU or SD card.
+
 1. **Compile Klipper firmware** for Octopus Pro:
    - Micro-controller: `STM32F446`
    - Bootloader offset: `32KiB bootloader`
    - Clock Reference: `12 MHz crystal` (enable "extra low-level configuration options")
    - Communication interface: `USB (on PA11/PA12)` - This setup uses USB serial for the mainboard
-2. **Flash the Octopus Pro** in DFU mode:
+
+2. **Flash the Octopus Pro** - Choose one method:
+
+   **Method A: SD Card (Easiest)**
+   - Copy the generated `klipper.bin` file to an SD card, rename it to `firmware.bin`
+   - Insert SD card into Octopus Pro
+   - Power on or restart the board
+   - The firmware will flash automatically
+
+   **Method B: DFU Mode**
    - Put the board in DFU mode (usually BOOT0 button + reset)
    - Flash using `make flash FLASH_DEVICE=0483:df11` or use STM32CubeProgrammer
-   - Or copy `firmware.bin` to SD card and restart
+   - Verify device ID with `lsusb` first
+
 3. **Connection**: After flashing, connect the Octopus Pro via **USB** to your Raspberry Pi
    - This setup uses a hybrid approach: USB for mainboard, CAN bus for toolhead
    - The Octopus Pro will communicate via USB serial
    - The SB2209 toolhead will communicate via CAN bus
 
 #### Step 3: EBB SB2209 Firmware Setup
-1. **Compile Klipper firmware** for EBB SB2209:
+
+**Note**: For CAN bus toolhead, **Katapult IS recommended** to enable easy firmware updates over CAN bus.
+
+1. **Install Katapult** (if not already installed):
+   ```bash
+   cd ~
+   git clone https://github.com/Arksine/katapult
+   ```
+
+2. **Flash Katapult bootloader to SB2209** (via USB/DFU first):
+   - Configure Katapult for STM32G0B1, 8MHz crystal, CAN bus
+   - Put SB2209 in DFU mode
+   - Flash Katapult using `dfu-util` (see wiki for details)
+
+3. **Compile Klipper firmware** for EBB SB2209:
    - Micro-controller: `STM32G0B1`
    - Clock Reference: `8 MHz crystal`
    - Communication interface: `CAN bus (on PB0/PB1)`
-2. **Flash EBB SB2209 firmware**:
-   - Use pre-compiled firmware from `ebb/SB2209/` folder:
-     - `firmware_canbus.bin` - Standard CAN bus firmware
-     - `firmware_canbus_8k_bootloader.bin` - For 8KiB bootloader
-   - Follow EBB SB2209 manual for flashing instructions
-   - Can be flashed via USB first, then switch to CAN bus
+
+4. **Flash Klipper to SB2209**:
+   - **Option A**: Use pre-compiled firmware from `ebb/SB2209/` folder via USB/DFU
+   - **Option B**: After connecting via CAN bus, use Katapult to flash over CAN:
+     ```bash
+     python3 ~/katapult/scripts/flashtool.py -i can0 -u YOUR_UUID -f ~/klipper/out/klipper.bin
+     ```
+   - Connect SB2209 to CAN bus network after initial flash
 
 #### Step 4: CAN Bus Connection Setup
 1. **Physical connections**:
