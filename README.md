@@ -76,10 +76,25 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
    - Note the UUID for your EBB SB2209 (example: `a863bc1811c2`)
 
 #### Step 5: Klipper Configuration
-1. **Update `printer.cfg`**:
-   - Set the correct serial path for Octopus Pro (check with `ls -l /dev/serial/by-id/`)
-   - Update `canbus_uuid` in `SB2209.cfg` with your EBB's UUID
-   - Verify all include paths are correct
+
+**Choose your connection method:**
+
+**Option A: Full CAN Bus Setup (Recommended)**
+- Octopus Pro configured as USB-CAN-Bridge (on CAN bus)
+- SB2209 on CAN bus
+- Both use `canbus_uuid` in config
+- Update `printer.cfg` main `[mcu]` section to use `canbus_uuid: YOUR_OCTOPUS_UUID` (no `serial:` or `restart_method:`)
+- Update `canbus_uuid` in `SB2209.cfg` with your EBB's UUID
+
+**Option B: Hybrid Setup (Current config)**
+- Octopus Pro on USB serial connection
+- SB2209 on CAN bus
+- Update `printer.cfg` main `[mcu]` section with correct serial path (check with `ls -l /dev/serial/by-id/`)
+- Update `canbus_uuid` in `SB2209.cfg` with your EBB's UUID
+
+**Note**: The current `backup/printer.cfg` uses Option B (hybrid). If you want Option A (full CAN), you'll need to:
+1. Find the Octopus Pro UUID using `canbus_query.py can0`
+2. Change the `[mcu]` section from `serial:` to `canbus_uuid:`
 2. **Restart Klipper** and verify all MCUs connect:
    ```bash
    sudo systemctl restart klipper
