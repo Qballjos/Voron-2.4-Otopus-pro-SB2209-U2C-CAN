@@ -176,6 +176,50 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 
 > **Note**: This setup uses USB for the mainboard (Octopus Pro) and CAN bus only for the toolhead (SB2209). This hybrid approach is simpler and works well for most setups.
 
+---
+
+## 💾 Backup Best Practices
+
+**⚠️ IMPORTANT**: Always backup your configuration before making changes!
+
+Regular backups protect your Klipper configuration and prevent data loss. See the [Backup Best Practices](https://github.com/Qballjos/Voron-2.4-Otopus-pro-SB2209-U2C-CAN/wiki/Backup-Best-Practices) wiki page for comprehensive backup strategies.
+
+### Quick Backup Methods
+
+**Method 1: Manual Copy (Quick)**
+```bash
+# From your computer, copy config files
+scp -r USERNAME@mainsailos.local:~/printer_data/config/* ~/voron-backups/
+```
+
+**Method 2: Git Repository (Recommended)**
+```bash
+# On Raspberry Pi
+cd ~/printer_data/config
+git init
+git add .
+git commit -m "Backup $(date +%Y-%m-%d)"
+# Push to GitHub/GitLab for remote backup
+```
+
+**Method 3: Automated Script**
+- See the [Backup Best Practices](https://github.com/Qballjos/Voron-2.4-Otopus-pro-SB2209-U2C-CAN/wiki/Backup-Best-Practices) wiki for automated backup scripts
+
+### What to Backup
+- All `.cfg` files in `~/printer_data/config/`
+- `moonraker.conf`
+- `klipperscreen.cfg`
+- `crowsnest.conf`
+- Custom scripts and firmware files
+
+**When to Backup:**
+- ✅ Before making any configuration changes
+- ✅ Before system updates
+- ✅ After successful calibration
+- ✅ Regularly (daily/weekly automated backups)
+
+---
+
 ![voron 2 4 R2](https://user-images.githubusercontent.com/1911646/210006979-284c8834-5c52-45b6-8e7a-231ccd9c2b9e.jpeg)
 
 ![U2C-Octopus-SB2209](https://user-images.githubusercontent.com/1911646/211887538-b0239d62-0468-4e26-8723-45eb765b60e9.jpg)
