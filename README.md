@@ -15,21 +15,87 @@ Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 
 #### Setup Requirements:
 - **Octopus Pro v1.1** (or compatible version)
-- **U2C v2.1** (or compatible version)
+- **U2C v2.1** (or compatible version)  
 - **EBB SB2209 v1.0** (or EBB36)
 - **U2C Configuration**: Remove the 120R jumper on the U2C board
 
-#### Flashing Process:
-1. Flash the Octopus Pro firmware in DFU mode
-2. **IMPORTANT**: After flashing, connect the Octopus Pro via CAN bus (not USB)
-3. The CAN network will only work when connected via CAN bus after initial flash
-4. Verify CAN bus connection before proceeding with configuration
+---
 
-#### U2C Configuration:
-- Remove the 120R termination resistor jumper on the U2C board
-- This is required for proper CAN bus termination
+### Complete Installation Guide
 
-> **Note**: Many installation points are not obvious. If you encounter issues, ensure you've followed the CAN bus connection step after flashing.
+#### Step 1: U2C Configuration
+1. **Remove the 120R termination resistor jumper** on the U2C board
+   - This is required for proper CAN bus termination
+   - The jumper is typically located near the CAN bus connector
+2. Flash U2C firmware if needed:
+   - Use `U2C_V2_STM32G0B1.bin` from the `u2c/` folder
+   - Follow U2C manual for flashing instructions
+
+#### Step 2: Octopus Pro Firmware Setup
+1. **Compile Klipper firmware** for Octopus Pro:
+   - Micro-controller: `STM32F446`
+   - Bootloader offset: `32KiB bootloader`
+   - Clock Reference: `12 MHz crystal` (enable "extra low-level configuration options")
+   - Communication interface: Configure for CAN bus operation
+2. **Flash the Octopus Pro** in DFU mode:
+   - Put the board in DFU mode (usually BOOT0 button + reset)
+   - Flash using `make flash FLASH_DEVICE=0483:df11` or use STM32CubeProgrammer
+   - Or copy `firmware.bin` to SD card and restart
+3. **⚠️ CRITICAL**: After flashing in DFU mode, **connect via CAN bus (not USB)**
+   - Do NOT connect via USB after flashing
+   - The CAN network will ONLY work when connected via CAN bus
+   - This is the most common mistake - USB connection will prevent CAN bus from working
+
+#### Step 3: EBB SB2209 Firmware Setup
+1. **Compile Klipper firmware** for EBB SB2209:
+   - Micro-controller: `STM32G0B1`
+   - Clock Reference: `8 MHz crystal`
+   - Communication interface: `CAN bus (on PB0/PB1)`
+2. **Flash EBB SB2209 firmware**:
+   - Use pre-compiled firmware from `ebb/SB2209/` folder:
+     - `firmware_canbus.bin` - Standard CAN bus firmware
+     - `firmware_canbus_8k_bootloader.bin` - For 8KiB bootloader
+   - Follow EBB SB2209 manual for flashing instructions
+   - Can be flashed via USB first, then switch to CAN bus
+
+#### Step 4: CAN Bus Connection Setup
+1. **Physical connections**:
+   - Connect U2C to Raspberry Pi via USB
+   - Connect Octopus Pro to U2C via CAN bus (CANH/CANL)
+   - Connect EBB SB2209 to CAN bus network (daisy chain or via U2C)
+   - Ensure proper CAN bus termination (120R at each end of the bus)
+2. **Power up sequence**:
+   - Power on U2C first
+   - Power on Octopus Pro (via CAN bus, not USB)
+   - Power on EBB SB2209
+3. **Verify CAN bus connection**:
+   ```bash
+   ~/klippy-env/bin/python ~/klipper/scripts/canbus_query.py can0
+   ```
+   - You should see the CAN UUIDs of connected devices
+   - Note the UUID for your EBB SB2209 (example: `a863bc1811c2`)
+
+#### Step 5: Klipper Configuration
+1. **Update `printer.cfg`**:
+   - Set the correct serial path for Octopus Pro (check with `ls -l /dev/serial/by-id/`)
+   - Update `canbus_uuid` in `SB2209.cfg` with your EBB's UUID
+   - Verify all include paths are correct
+2. **Restart Klipper** and verify all MCUs connect:
+   ```bash
+   sudo systemctl restart klipper
+   ```
+3. **Check Klipper logs** for any connection errors:
+   ```bash
+   tail -f ~/printer_data/logs/klippy.log
+   ```
+
+#### Troubleshooting
+- **CAN bus not working**: Ensure Octopus Pro is connected via CAN bus (not USB) after flashing
+- **EBB not detected**: Verify CAN UUID is correct in `SB2209.cfg`
+- **U2C issues**: Check that 120R jumper is removed
+- **Connection errors**: Verify CAN bus wiring (CANH/CANL) and termination resistors
+
+> **Note**: Many installation points are not obvious. The critical step is connecting Octopus Pro via CAN bus (not USB) after initial firmware flash. This is the only way the CAN network will work properly.
 
 ![voron 2 4 R2](https://user-images.githubusercontent.com/1911646/210006979-284c8834-5c52-45b6-8e7a-231ccd9c2b9e.jpeg)
 
