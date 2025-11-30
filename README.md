@@ -3,7 +3,7 @@
 Voron 2.4 R2 with Stealthburner, Voron Tap, Bambu hotend.
 Octopus pro with TMC2209 UART, EBB SB2209 v1.0 and U2C v2.1 running klipper
 
-**Hardware**: Optimized for **Raspberry Pi 5 with Compute Module 4 (CM4)**
+**Hardware**: Optimized for **BigTreeTech Raspberry Pad 5 with Compute Module 4 (CM4)**
 
 ## 🚀 Quick Start
 
